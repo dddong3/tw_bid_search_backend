@@ -1,0 +1,43 @@
+scalar DateTime
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPrevPage: Boolean!
+    totalCount: Int!
+}
+
+type AuctionItemConnection {
+    nodes: [AuctionItem!]!
+    pageInfo: PageInfo!
+}
+
+type SingleAuctionItem {
+    node: AuctionItem!
+}
+
+type AuctionItem {
+    id: ID!
+    FilePath: String!
+    RowId: Int!
+    CaseYear: String!
+    CaseID: String!
+    CaseNo: String!
+    SaleDate: DateTime!
+    SaleNo: Int!
+    Name: String!
+    Quantity: String!
+    Unit: String!
+    Notes: String!
+    Remark: String!
+    Court: String!
+    PicturePath: String!
+    PictureCount: Int!
+    TotalPrice: Int!
+    Deposit: String!
+}
+
+
+type Query {
+    getAuctionItems(page: Int, limit: Int): AuctionItemConnection!
+    getAuctionItemWithId(id: Int): SingleAuctionItem!
+}
