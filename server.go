@@ -50,6 +50,6 @@ func main() {
 	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	r.Handle("/query", srv)
 
-	logger.Logger.Infof("connect to http://localhost:%s/ for GraphQL playground", port)
-	logger.Logger.Fatal(http.ListenAndServe(":"+port, r))
+	logger.Logger.Infof("connect to http://0.0.0.0:%s/ for GraphQL playground", port)
+	logger.Logger.Fatal(http.ListenAndServe("0.0.0.0:"+port, r))
 }
