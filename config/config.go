@@ -12,6 +12,9 @@ func init() {
 }
 
 func LoadEnv() {
+	if os.Getenv("ENV") == strings.ToLower("production") {
+		return
+	}
 	err := godotenv.Load()
 	if err != nil {
 		logger.Logger.Fatalf("Error loading .env file")
