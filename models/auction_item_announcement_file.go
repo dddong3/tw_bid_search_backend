@@ -12,7 +12,7 @@ type AuctionItemAnnouncementFile struct {
 	CaseID       string    `gorm:"size:100;not null"`
 	CaseNo       string    `gorm:"size:100;not null"`
 	FileType     string    `gorm:"size:100;not null"`
-	AnnouncementFile []byte `gorm:"type:blob;not null"`
+	AnnouncementFile []byte `gorm:"type:bytea;not null"`
 }
 
 func (a AuctionItemAnnouncementFile) TableName() string {
