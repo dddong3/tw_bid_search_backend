@@ -2,6 +2,7 @@ package models
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type AuctionItemAnnouncementFile struct {
@@ -13,6 +14,7 @@ type AuctionItemAnnouncementFile struct {
 	CaseNo       string    `gorm:"size:100;not null"`
 	FileType     string    `gorm:"size:100;not null"`
 	AnnouncementFile []byte `gorm:"type:bytea;not null"`
+	UpdatedAt		 time.Time `gorm:"not null"`
 }
 
 func (a AuctionItemAnnouncementFile) TableName() string {

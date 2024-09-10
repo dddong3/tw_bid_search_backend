@@ -17,7 +17,6 @@ type SingleAuctionItem {
 
 type AuctionItem {
     id: ID!
-    FilePath: String!
     RowId: Int!
     CaseYear: String!
     CaseID: String!
@@ -34,6 +33,7 @@ type AuctionItem {
     PictureCount: Int!
     TotalPrice: Int!
     Deposit: String!
+    UpdatedAt: DateTime!
 }
 
 

@@ -8,7 +8,6 @@ import (
 type AuctionItem struct {
 	gorm.Model
 	ID           int       `gorm:"primaryKey"`
-	FilePath     string    `gorm:"size:100;not null"`
 	RowID        int       `gorm:"not null"`
 	CaseYear     string    `gorm:"size:100;not null"`
 	CaseID       string    `gorm:"size:100;not null"`
@@ -25,6 +24,7 @@ type AuctionItem struct {
 	PictureCount int       `gorm:"default:0"`
 	TotalPrice   int       `gorm:"default:0"`
 	Deposit      string    `gorm:"size:100;default:''"`
+	UpdatedAt     time.Time `gorm:"not null"`
 }
 
 func (a AuctionItem) TableName() string {

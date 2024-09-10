@@ -54,7 +54,6 @@ type ComplexityRoot struct {
 		CaseYear     func(childComplexity int) int
 		Court        func(childComplexity int) int
 		Deposit      func(childComplexity int) int
-		FilePath     func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Name         func(childComplexity int) int
 		Notes        func(childComplexity int) int
@@ -67,6 +66,7 @@ type ComplexityRoot struct {
 		SaleNo       func(childComplexity int) int
 		TotalPrice   func(childComplexity int) int
 		Unit         func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
 	}
 
 	AuctionItemConnection struct {
@@ -148,13 +148,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuctionItem.Deposit(childComplexity), true
-
-	case "AuctionItem.FilePath":
-		if e.complexity.AuctionItem.FilePath == nil {
-			break
-		}
-
-		return e.complexity.AuctionItem.FilePath(childComplexity), true
 
 	case "AuctionItem.id":
 		if e.complexity.AuctionItem.ID == nil {
@@ -239,6 +232,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuctionItem.Unit(childComplexity), true
+
+	case "AuctionItem.UpdatedAt":
+		if e.complexity.AuctionItem.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuctionItem.UpdatedAt(childComplexity), true
 
 	case "AuctionItemConnection.nodes":
 		if e.complexity.AuctionItemConnection.Nodes == nil {
@@ -545,50 +545,6 @@ func (ec *executionContext) fieldContext_AuctionItem_id(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AuctionItem_FilePath(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuctionItem_FilePath(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FilePath, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuctionItem_FilePath(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuctionItem",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1298,6 +1254,50 @@ func (ec *executionContext) fieldContext_AuctionItem_Deposit(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _AuctionItem_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuctionItem_UpdatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuctionItem_UpdatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuctionItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AuctionItemConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *AuctionItemConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItemConnection_nodes(ctx, field)
 	if err != nil {
@@ -1339,8 +1339,6 @@ func (ec *executionContext) fieldContext_AuctionItemConnection_nodes(_ context.C
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_AuctionItem_id(ctx, field)
-			case "FilePath":
-				return ec.fieldContext_AuctionItem_FilePath(ctx, field)
 			case "RowId":
 				return ec.fieldContext_AuctionItem_RowId(ctx, field)
 			case "CaseYear":
@@ -1373,6 +1371,8 @@ func (ec *executionContext) fieldContext_AuctionItemConnection_nodes(_ context.C
 				return ec.fieldContext_AuctionItem_TotalPrice(ctx, field)
 			case "Deposit":
 				return ec.fieldContext_AuctionItem_Deposit(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_AuctionItem_UpdatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuctionItem", field.Name)
 		},
@@ -1854,8 +1854,6 @@ func (ec *executionContext) fieldContext_SingleAuctionItem_node(_ context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_AuctionItem_id(ctx, field)
-			case "FilePath":
-				return ec.fieldContext_AuctionItem_FilePath(ctx, field)
 			case "RowId":
 				return ec.fieldContext_AuctionItem_RowId(ctx, field)
 			case "CaseYear":
@@ -1888,6 +1886,8 @@ func (ec *executionContext) fieldContext_SingleAuctionItem_node(_ context.Contex
 				return ec.fieldContext_AuctionItem_TotalPrice(ctx, field)
 			case "Deposit":
 				return ec.fieldContext_AuctionItem_Deposit(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_AuctionItem_UpdatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuctionItem", field.Name)
 		},
@@ -3692,11 +3692,6 @@ func (ec *executionContext) _AuctionItem(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "FilePath":
-			out.Values[i] = ec._AuctionItem_FilePath(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "RowId":
 			out.Values[i] = ec._AuctionItem_RowId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3774,6 +3769,11 @@ func (ec *executionContext) _AuctionItem(ctx context.Context, sel ast.SelectionS
 			}
 		case "Deposit":
 			out.Values[i] = ec._AuctionItem_Deposit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdatedAt":
+			out.Values[i] = ec._AuctionItem_UpdatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
