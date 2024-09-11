@@ -34,3 +34,7 @@ func (s *AuctionItemService) GetAuctionItemsWithPage(limit int, page int) ([]*mo
 func (s *AuctionItemService) GetAuctionItemByID(id int) (*models.AuctionItem, error) {
 	return s.Repo.GetAuctionItemByID(id)
 }
+
+func (s *AuctionItemService) GetAuctionItemWithRelate(court, year, caseID, caseNo string) ([]*models.AuctionItem, error) {
+	return s.Repo.GetAuctionItemWithRelate(court, year, caseID, caseNo)
+}

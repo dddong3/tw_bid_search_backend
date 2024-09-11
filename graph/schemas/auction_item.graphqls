@@ -40,4 +40,5 @@ type AuctionItem {
 type Query {
     getAuctionItems(page: Int, limit: Int): AuctionItemConnection!
     getAuctionItemWithId(id: Int): SingleAuctionItem!
+    getAuctionItemWithRelate(court: String, year: String, caseId: String, caseNo: String): [AuctionItem!]!
 }

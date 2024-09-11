@@ -39,3 +39,9 @@ func (r *AuctionItemRepo) GetAuctionItemByID(id int) (*models.AuctionItem, error
 	err := r.DB.First(&auctionItem, id).Error
 	return auctionItem, err
 }
+
+func(r *AuctionItemRepo) GetAuctionItemWithRelate(court, year, caseID, caseNo string) ([]*models.AuctionItem, error) {
+	var auctionItems []*models.AuctionItem
+	err := r.DB.Where("court = ? AND case_year = ? AND case_id = ? AND case_no = ?", court, year, caseID, caseNo).Find(&auctionItems).Error
+	return auctionItems, err
+}

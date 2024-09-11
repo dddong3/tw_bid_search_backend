@@ -10,7 +10,7 @@ import (
 
 	"github.com/dddong3/Bid_Backend/graph"
 	"github.com/dddong3/Bid_Backend/logger"
-	// "github.com/dddong3/Bid_Backend/models"
+	"github.com/dddong3/Bid_Backend/models"
 )
 
 // GetAuctionItems is the resolver for the getAuctionItems field.
@@ -69,6 +69,25 @@ func (r *queryResolver) GetAuctionItemWithID(ctx context.Context, id *int) (*gra
 	return &graph.SingleAuctionItem{
 		Node: item,
 	}, nil
+}
+
+// GetAuctionItemWithRelate is the resolver for the getAuctionItemWithRelate field.
+func (r *queryResolver) GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*models.AuctionItem, error) {
+	if court == nil || year == nil || caseID == nil || caseNo == nil {
+		logger.Logger.Error("court, year, caseID, caseNo are required")
+		return nil, fmt.Errorf("court, year, caseID, caseNo are required")
+	}
+
+	logger.Logger.Debugf("Fetched auction item with court %s, year %s, caseID %s, caseNo %s", *court, *year, *caseID, *caseNo)
+
+	items, err := r.AuctionItemService.GetAuctionItemWithRelate(*court, *year, *caseID, *caseNo)
+
+	if err != nil {
+		logger.Logger.Errorf("Error fetching auction item: %v", err)
+		return nil, err
+	}
+
+	return items, nil
 }
 
 // Query returns graph.QueryResolver implementation.
