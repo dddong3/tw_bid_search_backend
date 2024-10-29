@@ -8,6 +8,11 @@ import (
 )
 
 func GetRealIP(r *http.Request) string {
+	cfConnectingIP := r.Header.Get("Cf-Connecting-Ip")
+	if cfConnectingIP != "" {
+		return cfConnectingIP
+	}
+
 	realIP := r.Header.Get("X-Real-IP")
 	if realIP != "" {
 		return realIP
