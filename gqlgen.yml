@@ -88,5 +88,5 @@ models:
     model: github.com/dddong3/Bid_Backend/graph/scalars.DateTime
 
   AuctionItem:
-    model: github.com/dddong3/Bid_Backend/models.AuctionItem
+    model: github.com/dddong3/Bid_Backend/auctionitem.AuctionItem
   

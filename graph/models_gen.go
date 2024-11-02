@@ -3,12 +3,12 @@
 package graph
 
 import (
-	"github.com/dddong3/Bid_Backend/models"
+	"github.com/dddong3/Bid_Backend/auctionitem"
 )
 
 type AuctionItemConnection struct {
-	Nodes    []*models.AuctionItem `json:"nodes"`
-	PageInfo *PageInfo             `json:"pageInfo"`
+	Nodes    []*auctionitem.AuctionItem `json:"nodes"`
+	PageInfo *PageInfo                  `json:"pageInfo"`
 }
 
 type PageInfo struct {
@@ -21,5 +21,5 @@ type Query struct {
 }
 
 type SingleAuctionItem struct {
-	Node *models.AuctionItem `json:"node"`
+	Node *auctionitem.AuctionItem `json:"node"`
 }

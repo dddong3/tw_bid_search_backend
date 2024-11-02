@@ -15,8 +15,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/dddong3/Bid_Backend/auctionitem"
 	"github.com/dddong3/Bid_Backend/graph/scalars"
-	"github.com/dddong3/Bid_Backend/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -84,6 +84,7 @@ type ComplexityRoot struct {
 		GetAuctionItemWithID     func(childComplexity int, id *int) int
 		GetAuctionItemWithRelate func(childComplexity int, court *string, year *string, caseID *string, caseNo *string) int
 		GetAuctionItems          func(childComplexity int, page *int, limit *int) int
+		GetAuctionItemsWithQuery func(childComplexity int, query *string, page *int, limit *int) int
 	}
 
 	SingleAuctionItem struct {
@@ -93,8 +94,9 @@ type ComplexityRoot struct {
 
 type QueryResolver interface {
 	GetAuctionItems(ctx context.Context, page *int, limit *int) (*AuctionItemConnection, error)
+	GetAuctionItemsWithQuery(ctx context.Context, query *string, page *int, limit *int) (*AuctionItemConnection, error)
 	GetAuctionItemWithID(ctx context.Context, id *int) (*SingleAuctionItem, error)
-	GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*models.AuctionItem, error)
+	GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*auctionitem.AuctionItem, error)
 }
 
 type executableSchema struct {
@@ -313,6 +315,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAuctionItems(childComplexity, args["page"].(*int), args["limit"].(*int)), true
 
+	case "Query.getAuctionItemsWithQuery":
+		if e.complexity.Query.GetAuctionItemsWithQuery == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAuctionItemsWithQuery_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAuctionItemsWithQuery(childComplexity, args["query"].(*string), args["page"].(*int), args["limit"].(*int)), true
+
 	case "SingleAuctionItem.node":
 		if e.complexity.SingleAuctionItem.Node == nil {
 			break
@@ -500,6 +514,39 @@ func (ec *executionContext) field_Query_getAuctionItemWithRelate_args(ctx contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getAuctionItemsWithQuery_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["query"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["query"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getAuctionItems_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -562,7 +609,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AuctionItem_id(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_id(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -606,7 +653,7 @@ func (ec *executionContext) fieldContext_AuctionItem_id(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_RowId(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_RowId(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_RowId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -650,7 +697,7 @@ func (ec *executionContext) fieldContext_AuctionItem_RowId(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_CaseYear(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_CaseYear(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_CaseYear(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -694,7 +741,7 @@ func (ec *executionContext) fieldContext_AuctionItem_CaseYear(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_CaseID(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_CaseID(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_CaseID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -738,7 +785,7 @@ func (ec *executionContext) fieldContext_AuctionItem_CaseID(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_CaseNo(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_CaseNo(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_CaseNo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -782,7 +829,7 @@ func (ec *executionContext) fieldContext_AuctionItem_CaseNo(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_SaleDate(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_SaleDate(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_SaleDate(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -826,7 +873,7 @@ func (ec *executionContext) fieldContext_AuctionItem_SaleDate(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_SaleNo(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_SaleNo(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_SaleNo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -870,7 +917,7 @@ func (ec *executionContext) fieldContext_AuctionItem_SaleNo(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Name(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Name(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -914,7 +961,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Name(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Quantity(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Quantity(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Quantity(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -958,7 +1005,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Quantity(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Unit(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Unit(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Unit(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1002,7 +1049,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Unit(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Notes(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Notes(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Notes(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1046,7 +1093,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Notes(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Remark(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Remark(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Remark(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1090,7 +1137,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Remark(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Court(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Court(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Court(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1134,7 +1181,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Court(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_PicturePath(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_PicturePath(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_PicturePath(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1178,7 +1225,7 @@ func (ec *executionContext) fieldContext_AuctionItem_PicturePath(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_PictureCount(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_PictureCount(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_PictureCount(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1222,7 +1269,7 @@ func (ec *executionContext) fieldContext_AuctionItem_PictureCount(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_TotalPrice(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_TotalPrice(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_TotalPrice(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1266,7 +1313,7 @@ func (ec *executionContext) fieldContext_AuctionItem_TotalPrice(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_Deposit(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_Deposit(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_Deposit(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1310,7 +1357,7 @@ func (ec *executionContext) fieldContext_AuctionItem_Deposit(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _AuctionItem_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *models.AuctionItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuctionItem_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *auctionitem.AuctionItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuctionItem_UpdatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1380,9 +1427,9 @@ func (ec *executionContext) _AuctionItemConnection_nodes(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.AuctionItem)
+	res := resTmp.([]*auctionitem.AuctionItem)
 	fc.Result = res
-	return ec.marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuctionItemConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1681,6 +1728,67 @@ func (ec *executionContext) fieldContext_Query_getAuctionItems(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getAuctionItemsWithQuery(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAuctionItemsWithQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAuctionItemsWithQuery(rctx, fc.Args["query"].(*string), fc.Args["page"].(*int), fc.Args["limit"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*AuctionItemConnection)
+	fc.Result = res
+	return ec.marshalNAuctionItemConnection2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋgraphᚐAuctionItemConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAuctionItemsWithQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_AuctionItemConnection_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_AuctionItemConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuctionItemConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAuctionItemsWithQuery_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getAuctionItemWithId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getAuctionItemWithId(ctx, field)
 	if err != nil {
@@ -1766,9 +1874,9 @@ func (ec *executionContext) _Query_getAuctionItemWithRelate(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.AuctionItem)
+	res := resTmp.([]*auctionitem.AuctionItem)
 	fc.Result = res
-	return ec.marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getAuctionItemWithRelate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1988,9 +2096,9 @@ func (ec *executionContext) _SingleAuctionItem_node(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.AuctionItem)
+	res := resTmp.(*auctionitem.AuctionItem)
 	fc.Result = res
-	return ec.marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItem(ctx, field.Selections, res)
+	return ec.marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SingleAuctionItem_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3827,7 +3935,7 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 var auctionItemImplementors = []string{"AuctionItem"}
 
-func (ec *executionContext) _AuctionItem(ctx context.Context, sel ast.SelectionSet, obj *models.AuctionItem) graphql.Marshaler {
+func (ec *executionContext) _AuctionItem(ctx context.Context, sel ast.SelectionSet, obj *auctionitem.AuctionItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auctionItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4071,6 +4179,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getAuctionItems(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAuctionItemsWithQuery":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAuctionItemsWithQuery(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4523,7 +4653,7 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.AuctionItem) graphql.Marshaler {
+func (ec *executionContext) marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*auctionitem.AuctionItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4547,7 +4677,7 @@ func (ec *executionContext) marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋB
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4567,7 +4697,7 @@ func (ec *executionContext) marshalNAuctionItem2ᚕᚖgithubᚗcomᚋdddong3ᚋB
 	return ret
 }
 
-func (ec *executionContext) marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋmodelsᚐAuctionItem(ctx context.Context, sel ast.SelectionSet, v *models.AuctionItem) graphql.Marshaler {
+func (ec *executionContext) marshalNAuctionItem2ᚖgithubᚗcomᚋdddong3ᚋBid_BackendᚋauctionitemᚐAuctionItem(ctx context.Context, sel ast.SelectionSet, v *auctionitem.AuctionItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

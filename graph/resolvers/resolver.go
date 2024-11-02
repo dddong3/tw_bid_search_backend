@@ -1,8 +1,7 @@
 package resolvers
 
 import (
-	// "gorm.io/gorm"
-	"github.com/dddong3/Bid_Backend/services"
+	"github.com/dddong3/Bid_Backend/auctionitem"
 )
 
 // This file will not be regenerated automatically.
@@ -10,6 +9,13 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	// DB *gorm.DB
-	AuctionItemService *services.AuctionItemService
+	AuctionItemService *auctionitem.AuctionItemService
+}
+
+func InitResolver() *Resolver {
+	return &Resolver{
+		AuctionItemService: &auctionitem.AuctionItemService{
+			Repo: auctionitem.GetAuctionItemRepo(),
+		},
+	}
 }

@@ -8,30 +8,37 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dddong3/Bid_Backend/auctionitem"
 	"github.com/dddong3/Bid_Backend/graph"
 	"github.com/dddong3/Bid_Backend/logger"
-	"github.com/dddong3/Bid_Backend/models"
 )
 
 // GetAuctionItems is the resolver for the getAuctionItems field.
 func (r *queryResolver) GetAuctionItems(ctx context.Context, page *int, limit *int) (*graph.AuctionItemConnection, error) {
-	const defaultPage, defaultLimit = 1, 10
-	if page == nil {
-		page = new(int)
-		*page = defaultPage
-	}
-	if limit == nil {
-		limit = new(int)
-		*limit = defaultLimit
-	}
-	if *page < defaultPage {
-		*page = defaultPage
-	}
-	if *limit < 1 {
-		*limit = defaultLimit
+	// panic(fmt.Errorf("not implemented: GetAuctionItems - getAuctionItems"))
+	auctionItems, hasNextPage, hasPrevPage, totalCount, err := r.AuctionItemService.GetAuctionItemsWithPage(limit, page)
+
+	if err != nil {
+		logger.Logger.Errorf("Error fetching auction items: %v", err)
+		return nil, err
 	}
 
-	auctionItems, hasNextPage, hasPrevPage, totalCount, err := r.AuctionItemService.GetAuctionItemsWithPage(*limit, *page)
+	logger.Logger.Debugf("Fetched %d auction items", len(auctionItems))
+
+	return &graph.AuctionItemConnection{
+		Nodes: auctionItems,
+		PageInfo: &graph.PageInfo{
+			HasNextPage: hasNextPage,
+			HasPrevPage: hasPrevPage,
+			TotalCount:  totalCount,
+		},
+	}, nil
+}
+
+// GetAuctionItemsWithQuery is the resolver for the getAuctionItemsWithQuery field.
+func (r *queryResolver) GetAuctionItemsWithQuery(ctx context.Context, query *string, page *int, limit *int) (*graph.AuctionItemConnection, error) {
+	// panic(fmt.Errorf("not implemented: GetAuctionItemsWithQuery - getAuctionItemsWithQuery"))
+	auctionItems, hasNextPage, hasPrevPage, totalCount, err := r.AuctionItemService.GetAuctionItemsWithQuery(*query, limit, page)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
@@ -72,7 +79,7 @@ func (r *queryResolver) GetAuctionItemWithID(ctx context.Context, id *int) (*gra
 }
 
 // GetAuctionItemWithRelate is the resolver for the getAuctionItemWithRelate field.
-func (r *queryResolver) GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*models.AuctionItem, error) {
+func (r *queryResolver) GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*auctionitem.AuctionItem, error) {
 	if court == nil || year == nil || caseID == nil || caseNo == nil {
 		logger.Logger.Error("court, year, caseID, caseNo are required")
 		return nil, fmt.Errorf("court, year, caseID, caseNo are required")
