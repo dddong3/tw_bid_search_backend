@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"github.com/go-chi/chi"
 	"github.com/dddong3/Bid_Backend/rest/handlers"
+	"github.com/go-chi/chi"
 )
 
 func RegisterRoutes(r *chi.Mux, auctionItemHandler *handlers.AuctionItemHandler) {

@@ -1,10 +1,13 @@
 package middlewares
 
 import (
-	"time"
+	"bytes"
+	"encoding/json"
+	"github.com/dddong3/Bid_Backend/logger"
+	"io"
 	"net/http"
 	"strings"
-	"github.com/dddong3/Bid_Backend/logger"
+	"time"
 )
 
 func GetRealIP(r *http.Request) string {
@@ -32,6 +35,14 @@ func GetRealIP(r *http.Request) string {
 func TimingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		var graphqlPayload map[string]interface{}
+		if r.Method == "POST" && r.Header.Get("Content-Type") == "application/json" {
+			body, err := io.ReadAll(r.Body)
+			if err == nil {
+				r.Body = io.NopCloser(bytes.NewBuffer(body))
+				json.Unmarshal(body, &graphqlPayload)
+			}
+		}
 		next.ServeHTTP(w, r)
 		duration := time.Since(start)
 
@@ -49,5 +60,13 @@ func TimingMiddleware(next http.Handler) http.Handler {
 			" | userAgent:", userAgent,
 		)
 
+		if graphqlPayload != nil {
+			query, _ := graphqlPayload["query"].(string)
+			variables, _ := graphqlPayload["variables"].(map[string]interface{})
+			logger.Logger.Info("GraphQL Payload",
+				" | query:", query,
+				" | variables:", variables,
+			)
+		}
 	})
 }

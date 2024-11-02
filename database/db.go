@@ -7,7 +7,6 @@ import (
 
 	"github.com/dddong3/Bid_Backend/config"
 	"github.com/dddong3/Bid_Backend/logger"
-	"github.com/dddong3/Bid_Backend/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -35,20 +34,25 @@ func InitDB() *gorm.DB {
 			)
 			db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		case "sqlite":
-			dbPath := os.Getenv("SQLITE_DB_PATH")
+			dbPath := config.GetEnv("SQLITE_DB_PATH", "test.sqlite3")
 			db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+		default:
+			logger.Logger.Fatalf("Unsupported database type: %s", dbType)
 		}
 
 		if err != nil {
 			logger.Logger.Fatalf("Failed to connect to database: %v", err)
+			panic(err)
 		}
-		db.AutoMigrate(&models.AuctionItem{})
-		db.AutoMigrate(&models.AuctionItemAnnouncementFile{})
 	})
 
 	return db
 }
 
 func GetDB() *gorm.DB {
+	if db == nil {
+		logger.Logger.Warn("Database is not initialized. Initializing database...")
+		return InitDB()
+	}
 	return db
 }

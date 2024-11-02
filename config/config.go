@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/dddong3/Bid_Backend/logger"
+	"fmt"
 	"github.com/joho/godotenv"
 	"os"
 	"strings"
@@ -17,7 +17,7 @@ func LoadEnv() {
 	}
 	err := godotenv.Load()
 	if err != nil {
-		logger.Logger.Fatalf("Error loading .env file")
+		fmt.Errorf("Error loading .env file")
 	}
 }
 

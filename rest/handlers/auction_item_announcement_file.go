@@ -4,28 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/dddong3/Bid_Backend/auctionitem"
 	"github.com/dddong3/Bid_Backend/logger"
-	"github.com/dddong3/Bid_Backend/services"
 	"github.com/go-chi/chi"
 )
 
 type AuctionItemHandler struct {
-	Service *services.AuctionItemService
+	Service *auctionitem.AuctionItemService
 }
 
 func (h *AuctionItemHandler) GetFileTypes(w http.ResponseWriter, r *http.Request) {
-	// court := r.URL.Query().Get("court")
-	// caseYear := r.URL.Query().Get("case_year")
-	// caseID := r.URL.Query().Get("case_id")
-	// caseNo := r.URL.Query().Get("case_no")
 	court := chi.URLParam(r, "court")
 	caseYear := chi.URLParam(r, "case_year")
 	caseID := chi.URLParam(r, "case_id")
 	caseNo := chi.URLParam(r, "case_no")
 
-
 	logger.Logger.Debugf("court: %s, caseYear: %s, caseID: %s, caseNo: %s", court, caseYear, caseID, caseNo)
-
 
 	fileTypes, err := h.Service.GetFileTypes(court, caseYear, caseID, caseNo)
 	if err != nil {
