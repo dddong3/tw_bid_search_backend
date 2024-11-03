@@ -71,23 +71,16 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 	var (
 		auctionItems []*AuctionItem
 		total        int64
+		err		  error
 	)
-	// embeddingStr := "ARRAY["
-	// for i, val := range targetEmbedding {
-	// 	if i > 0 {
-	// 		embeddingStr += ", "
-	// 	}
-	// 	embeddingStr += fmt.Sprintf("%f", val)
-	// }
-	// embeddingStr += "]::vector"
-	embeddingStr := "ARRAY[" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(targetEmbedding)), ","), "[]") + "]::vector"
 
-	// query := fmt.Sprintf(`
-	// 	SELECT * FROM "AUCTION_ITEM"
-	// 	WHERE "START_DATE" >= '%s' AND "END_DATE" <= '%s'
-	// 	ORDER BY EMBEDDING <=> %s
-	// 	LIMIT %d OFFSET %d
-	// `, embeddingStr, limit, limit*(page-1))
+	embeddingStr := "ARRAY[" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(targetEmbedding)), ","), "[]") + "]::vector"
+	
+	err = r.DB.Model(&AuctionItem{}).Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).Count(&total).Error
+	if err != nil {
+		logger.Logger.Errorf("Error counting auction items: %v", err)
+		return nil, 0, err
+	}
 
 	query := r.DB.Table("AUCTION_ITEM").
 		Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).
@@ -95,19 +88,14 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 		Limit(limit).
 		Offset(limit * (page - 1))
 
-	// err := r.DB.Raw(query).Scan(&auctionItems).Error
-	err := query.Find(&auctionItems).Error
+	err = query.Find(&auctionItems).Error
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
 		return nil, 0, err
 	}
 
 	// err = r.DB.Model(&AuctionItem{}).Count(&total).Error
-	err = query.Count(&total).Error
-	if err != nil {
-		logger.Logger.Errorf("Error counting auction items: %v", err)
-		return nil, 0, err
-	}
+	// err = query.Count(&total).Error
 
 	return auctionItems, total, nil
 
