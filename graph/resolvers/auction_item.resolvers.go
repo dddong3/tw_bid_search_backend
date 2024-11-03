@@ -6,7 +6,7 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/dddong3/Bid_Backend/auctionitem"
 	"github.com/dddong3/Bid_Backend/graph"
@@ -36,10 +36,20 @@ func (r *queryResolver) GetAuctionItems(ctx context.Context, page *int, limit *i
 }
 
 // GetAuctionItemsWithQuery is the resolver for the getAuctionItemsWithQuery field.
-func (r *queryResolver) GetAuctionItemsWithQuery(ctx context.Context, query *string, page *int, limit *int) (*graph.AuctionItemConnection, error) {
-	// panic(fmt.Errorf("not implemented: GetAuctionItemsWithQuery - getAuctionItemsWithQuery"))
-	auctionItems, hasNextPage, hasPrevPage, totalCount, err := r.AuctionItemService.GetAuctionItemsWithQuery(*query, limit, page)
+func (r *queryResolver) GetAuctionItemsWithQuery(ctx context.Context, query *string, startDate string, endDate string, page int, limit int) (*graph.AuctionItemConnection, error) {
+	startDateFmt, err := time.Parse("2006-01-02", startDate)
+	if err != nil {
+		logger.Logger.Errorf("Error fetching auction items: %v", err)
+		return nil, err
+	}
 
+	endDateFmt, err := time.Parse("2006-01-02", endDate)
+	if err != nil {
+		logger.Logger.Errorf("Error fetching auction items: %v", err)
+		return nil, err
+	}
+
+	auctionItems, hasNextPage, hasPrevPage, totalCount, err := r.AuctionItemService.GetAuctionItemsWithQuery(*query, startDateFmt, endDateFmt, limit, page)
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
 		return nil, err
@@ -58,15 +68,15 @@ func (r *queryResolver) GetAuctionItemsWithQuery(ctx context.Context, query *str
 }
 
 // GetAuctionItemWithID is the resolver for the getAuctionItemWithId field.
-func (r *queryResolver) GetAuctionItemWithID(ctx context.Context, id *int) (*graph.SingleAuctionItem, error) {
-	if id == nil {
-		logger.Logger.Error("id is required")
-		return nil, fmt.Errorf("id is required")
-	}
+func (r *queryResolver) GetAuctionItemWithID(ctx context.Context, id int) (*graph.SingleAuctionItem, error) {
+	// if id == nil {
+	// 	logger.Logger.Error("id is required")
+	// 	return nil, fmt.Errorf("id is required")
+	// }
 
-	logger.Logger.Debugf("Fetched auction item with id %d", *id)
+	logger.Logger.Debugf("Fetched auction item with id %d", id)
 
-	item, err := r.AuctionItemService.GetAuctionItemByID(*id)
+	item, err := r.AuctionItemService.GetAuctionItemByID(id)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction item: %v", err)
@@ -79,15 +89,10 @@ func (r *queryResolver) GetAuctionItemWithID(ctx context.Context, id *int) (*gra
 }
 
 // GetAuctionItemWithRelate is the resolver for the getAuctionItemWithRelate field.
-func (r *queryResolver) GetAuctionItemWithRelate(ctx context.Context, court *string, year *string, caseID *string, caseNo *string) ([]*auctionitem.AuctionItem, error) {
-	if court == nil || year == nil || caseID == nil || caseNo == nil {
-		logger.Logger.Error("court, year, caseID, caseNo are required")
-		return nil, fmt.Errorf("court, year, caseID, caseNo are required")
-	}
+func (r *queryResolver) GetAuctionItemWithRelate(ctx context.Context, court string, year string, caseID string, caseNo string) ([]*auctionitem.AuctionItem, error) {
+	logger.Logger.Debugf("Fetched auction item with court %s, year %s, caseID %s, caseNo %s", court, year, caseID, caseNo)
 
-	logger.Logger.Debugf("Fetched auction item with court %s, year %s, caseID %s, caseNo %s", *court, *year, *caseID, *caseNo)
-
-	items, err := r.AuctionItemService.GetAuctionItemWithRelate(*court, *year, *caseID, *caseNo)
+	items, err := r.AuctionItemService.GetAuctionItemWithRelate(court, year, caseID, caseNo)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction item: %v", err)

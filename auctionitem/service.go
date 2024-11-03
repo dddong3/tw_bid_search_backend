@@ -2,10 +2,10 @@ package auctionitem
 
 import (
 	"context"
-
 	"github.com/dddong3/Bid_Backend/config"
 	"github.com/dddong3/Bid_Backend/logger"
 	openai "github.com/sashabaranov/go-openai"
+	"time"
 )
 
 type AuctionItemService struct {
@@ -51,23 +51,15 @@ func (s *AuctionItemService) GetAuctionItemByID(id int) (*AuctionItem, error) {
 	return s.Repo.GetAuctionItemByID(id)
 }
 
-func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, limit, page *int) ([]*AuctionItem, bool, bool, int, error) {
+func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData time.Time, endDate time.Time, limit, page int) ([]*AuctionItem, bool, bool, int, error) {
 	const defaultPage, defaultLimit = 1, 10
-	if page == nil {
-		page = new(int)
-		*page = defaultPage
+	if page < defaultPage {
+		page = defaultPage
 	}
-	if *page < defaultPage {
-		*page = defaultPage
+	if limit < 1 {
+		limit = defaultLimit
 	}
-	if limit == nil {
-		limit = new(int)
-		*limit = defaultLimit
-	}
-	if *limit < 1 {
-		*limit = defaultLimit
-	}
-	logger.Logger.Debugf("Fetching auction items with query: %s, limit: %d, page: %d", query, *limit, *page)
+	logger.Logger.Debugf("Fetching auction items with query: %s, limit: %d, page: %d", query, limit, page)
 
 	client := openai.NewClient(config.GetEnv("OPENAI_API_KEY", ""))
 
@@ -83,14 +75,14 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, limit, page 
 		return nil, false, false, 0, err
 	}
 
-	items, total, err := s.Repo.GetAuctionItemsWithQuery(*limit, *page, resp.Data[0].Embedding)
+	items, total, err := s.Repo.GetAuctionItemsWithQuery(limit, page, resp.Data[0].Embedding, startData, endDate)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
 		return nil, false, false, 0, err
 	}
-	hasNextPage := (*page * *limit) < int(total)
-	hasPrevPage := *page > 1
+	hasNextPage := (page * limit) < int(total)
+	hasPrevPage := page > 1
 	return items, hasNextPage, hasPrevPage, int(total), nil
 }
 

@@ -39,7 +39,7 @@ type AuctionItem {
 
 type Query {
     getAuctionItems(page: Int, limit: Int): AuctionItemConnection!
-    getAuctionItemsWithQuery(query: String, page: Int, limit: Int): AuctionItemConnection!
-    getAuctionItemWithId(id: Int): SingleAuctionItem!
-    getAuctionItemWithRelate(court: String, year: String, caseId: String, caseNo: String): [AuctionItem!]!
+    getAuctionItemsWithQuery(query: String, startDate: String!, endDate: String!, page: Int!, limit: Int!): AuctionItemConnection!
+    getAuctionItemWithId(id: Int!): SingleAuctionItem!
+    getAuctionItemWithRelate(court: String!, year: String!, caseId: String!, caseNo: String!): [AuctionItem!]!
 }
