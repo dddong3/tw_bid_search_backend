@@ -22,12 +22,6 @@ func init() {
 }
 
 func InitLogger(isProd bool, logPath string, logLevel string) {
-	// var logConfig zap.Config
-	// if isProd {
-	// 	logConfig = zap.NewProductionConfig()
-	// } else {
-	// 	logConfig = zap.NewDevelopmentConfig()
-	// }
 	logConfig := zap.NewDevelopmentConfig()
 
 	logConfig.OutputPaths = []string{logPath, "stdout"}
