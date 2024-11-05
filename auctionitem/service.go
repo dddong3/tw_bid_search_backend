@@ -75,7 +75,7 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 		return nil, false, false, 0, err
 	}
 
-	items, total, err := s.Repo.GetAuctionItemsWithQuery(limit, page, resp.Data[0].Embedding, startData, endDate)
+	items, total, err := s.Repo.GetAuctionItemsWithQuery(limit, page, resp.Data[0].Embedding, startData, endDate, 0.75)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)

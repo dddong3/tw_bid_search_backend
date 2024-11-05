@@ -67,7 +67,7 @@ func (r *AuctionItemRepo) GetAuctionItemWithRelate(court, year, caseID, caseNo s
 	return auctionItems, err
 }
 
-func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedding []float32, startDate, endDate time.Time) ([]*AuctionItem, int64, error) {
+func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedding []float32, startDate, endDate time.Time,  similarityThreshold float32) ([]*AuctionItem, int64, error) {
 	var (
 		auctionItems []*AuctionItem
 		total        int64
@@ -84,7 +84,8 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 
 	query := r.DB.Table("AUCTION_ITEM").
 		Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).
-		Order(fmt.Sprintf("EMBEDDING <=> %s", embeddingStr)).
+		Where(fmt.Sprintf("COSINE_SIMILARITY(embedding, %s) >= ?", embeddingStr), similarityThreshold).
+		Order(fmt.Sprintf("COSINE_SIMILARITY(embedding, %s) DESC", embeddingStr)).
 		Limit(limit).
 		Offset(limit * (page - 1))
 
@@ -93,9 +94,6 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
 		return nil, 0, err
 	}
-
-	// err = r.DB.Model(&AuctionItem{}).Count(&total).Error
-	// err = query.Count(&total).Error
 
 	return auctionItems, total, nil
 
