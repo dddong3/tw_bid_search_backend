@@ -75,17 +75,24 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 	)
 
 	embeddingStr := "ARRAY[" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(targetEmbedding)), ","), "[]") + "]::vector"
+
+	dateCondition := "sale_date >= ? AND sale_date <= ?"
+	embeddingCondition := fmt.Sprintf("EMBEDDING <=> %s <= ?", embeddingStr)
 	
-	err = r.DB.Model(&AuctionItem{}).Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).Count(&total).Error
+	err = r.DB.Model(&AuctionItem{}).
+	Where(dateCondition, startDate, endDate).
+	Where(embeddingCondition, similarityThreshold).
+	Count(&total).Error
+
 	if err != nil {
 		logger.Logger.Errorf("Error counting auction items: %v", err)
 		return nil, 0, err
 	}
 
-	query := r.DB.Table("AUCTION_ITEM").
-		Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).
-		Where(fmt.Sprintf("EMBEDDING <=> %s <= %f", embeddingStr, similarityThreshold)).
-		Order(fmt.Sprintf("EMBEDDING <=> %s DESC", embeddingStr)).
+	query := r.DB.Model(&AuctionItem{}).
+		Where(dateCondition, startDate, endDate).
+		Where(embeddingCondition, similarityThreshold).
+		Order(fmt.Sprintf("EMBEDDING <=> %s ASC", embeddingStr)).
 		Limit(limit).
 		Offset(limit * (page - 1))
 
