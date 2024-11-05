@@ -61,15 +61,10 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 	}
 	logger.Logger.Debugf("Fetching auction items with query: %s, limit: %d, page: %d", query, limit, page)
 
+	var similarityThreshold float32 = 0.75
+
 	if query == "" {
-		items, total, err := s.Repo.GetAuctionItemsWithPage(limit, page)
-		if err != nil {
-			logger.Logger.Errorf("Error fetching auction items: %v", err)
-			return nil, false, false, 0, err
-		}
-		hasNextPage := (page * limit) < int(total)
-		hasPrevPage := page > 1
-		return items, hasNextPage, hasPrevPage, int(total), nil
+		similarityThreshold = 0.0
 	}
 
 	client := openai.NewClient(config.GetEnv("OPENAI_API_KEY", ""))
@@ -86,7 +81,7 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 		return nil, false, false, 0, err
 	}
 
-	items, total, err := s.Repo.GetAuctionItemsWithQuery(limit, page, resp.Data[0].Embedding, startData, endDate, 0.75)
+	items, total, err := s.Repo.GetAuctionItemsWithQuery(limit, page, resp.Data[0].Embedding, startData, endDate, similarityThreshold)
 
 	if err != nil {
 		logger.Logger.Errorf("Error fetching auction items: %v", err)
