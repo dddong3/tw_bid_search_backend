@@ -61,6 +61,17 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 	}
 	logger.Logger.Debugf("Fetching auction items with query: %s, limit: %d, page: %d", query, limit, page)
 
+	if query == "" {
+		items, total, err := s.Repo.GetAuctionItemsWithPage(limit, page)
+		if err != nil {
+			logger.Logger.Errorf("Error fetching auction items: %v", err)
+			return nil, false, false, 0, err
+		}
+		hasNextPage := (page * limit) < int(total)
+		hasPrevPage := page > 1
+		return items, hasNextPage, hasPrevPage, int(total), nil
+	}
+
 	client := openai.NewClient(config.GetEnv("OPENAI_API_KEY", ""))
 
 	queryParams := &openai.EmbeddingRequest{
