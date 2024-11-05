@@ -64,7 +64,7 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 	var similarityThreshold float32 = 0.75
 
 	if query == "" {
-		similarityThreshold = 0.0
+		similarityThreshold = 1
 	}
 
 	client := openai.NewClient(config.GetEnv("OPENAI_API_KEY", ""))
