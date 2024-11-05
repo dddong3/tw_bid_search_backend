@@ -84,8 +84,8 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 
 	query := r.DB.Table("AUCTION_ITEM").
 		Where("sale_date >= ? AND sale_date <= ?", startDate, endDate).
-		Where(fmt.Sprintf("COSINE_SIMILARITY(embedding, %s) >= ?", embeddingStr), similarityThreshold).
-		Order(fmt.Sprintf("COSINE_SIMILARITY(embedding, %s) DESC", embeddingStr)).
+		Where(fmt.Sprintf("EMBEDDING <=> %s <= %f", embeddingStr, similarityThreshold)).
+		Order(fmt.Sprintf("EMBEDDING <=> %s DESC", embeddingStr)).
 		Limit(limit).
 		Offset(limit * (page - 1))
 
