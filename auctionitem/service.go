@@ -61,7 +61,7 @@ func (s *AuctionItemService) GetAuctionItemsWithQuery(query string, startData ti
 	}
 	logger.Logger.Debugf("Fetching auction items with query: %s, limit: %d, page: %d", query, limit, page)
 
-	var similarityThreshold float32 = 0.75
+	var similarityThreshold float32 = 0.5
 
 	if query == "" {
 		similarityThreshold = 1
