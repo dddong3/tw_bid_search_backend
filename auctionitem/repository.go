@@ -51,7 +51,7 @@ func (r *AuctionItemRepo) GetAuctionItemsWithPage(limit int, page int) ([]*Aucti
 		return nil, 0, err
 	}
 
-	err = r.DB.Order("id ASC").Offset(limit * (page - 1)).Limit(limit).Find(&auctionItems).Error
+	err = r.DB.Order("sale_date ASC").Offset(limit * (page - 1)).Limit(limit).Find(&auctionItems).Error
 	return auctionItems, total, err
 }
 
@@ -90,6 +90,7 @@ func (r *AuctionItemRepo) GetAuctionItemsWithQuery(limit, page int, targetEmbedd
 	}
 
 	query := r.DB.Model(&AuctionItem{}).
+		Order("sale_date ASC").
 		Where(dateCondition, startDate, endDate).
 		Where(embeddingCondition, similarityThreshold).
 		Order(fmt.Sprintf("EMBEDDING <=> %s ASC", embeddingStr)).
